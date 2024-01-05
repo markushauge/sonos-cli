@@ -15,6 +15,9 @@ pub enum Error {
     #[error("Invalid config")]
     InvalidConfig,
 
+    #[error("Key not found")]
+    KeyNotFound,
+
     #[error(transparent)]
     Io(#[from] io::Error),
 
@@ -85,11 +88,11 @@ impl Subcommands {
                 }
             }
             Subcommands::Get { key } => {
-                let value = &object[key];
+                let value = object.get(key).ok_or(Error::KeyNotFound)?;
                 println!("{}: {}", key, value);
             }
             Subcommands::Set { key, value } => {
-                object[key] = value.parse()?;
+                *object.get_mut(key).ok_or(Error::KeyNotFound)? = value.parse()?;
                 let config: Config = serde_json::from_value(Value::Object(object))?;
                 config.save()?;
             }
