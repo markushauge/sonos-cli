@@ -25,3 +25,5 @@ Commands:
 Options:
   -h, --help  Print help
 ```
+
+https://github.com/fshauge/sonos-cli/assets/1189327/96e6d439-fb79-4f1d-b39f-ae97cc8d1012
