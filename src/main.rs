@@ -54,6 +54,25 @@ async fn main() -> Result<()> {
 
             println!("Set volume to {}%", volume);
         }
+        Subcommands::Track { name } => {
+            let name = name.or(config.default).ok_or(Error::NoDefaultSpeaker)?;
+
+            let speaker = sonor::find(&name, timeout)
+                .await?
+                .ok_or(Error::SpeakerNotFound(name))?;
+
+            match speaker.track().await? {
+                None => println!("No track playing"),
+                Some(track) => {
+                    let track = track.track();
+
+                    match track.creator() {
+                        None => println!("Playing {}", track.title()),
+                        Some(creator) => println!("Playing {} by {}", track.title(), creator),
+                    }
+                }
+            }
+        }
         Subcommands::Group { name } => {
             let name = name.or(config.default).ok_or(Error::NoDefaultSpeaker)?;
 
@@ -109,6 +128,9 @@ enum Subcommands {
     },
     Volume {
         volume: u16,
+    },
+    Track {
+        name: Option<String>,
     },
     Group {
         name: Option<String>,
